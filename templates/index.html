@@ -1,0 +1,108 @@
+<!--Materia: Sistemas Distribuidos
+#Autor: Diego Valdes Castillo
+#Fecha de  creacion: 01/04/2025
+#Version: 1.0
+#Practica 6 - Servicios Web
+#Codigo de la carrera en pyhton - flask-->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrera de Autos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .track {
+            width: 80%;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 10px auto;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        .car {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            transition: left 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .car img {
+            width: 100%;
+            height: auto;
+            transform: scaleX(-1); /* Invierte la dirección del auto */
+        }
+        .car-name {
+            position: absolute;
+            left: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .podium {
+            margin-top: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Carrera de Autos</h1>
+    <div id="race"></div>
+    <div class="podium" id="podium"></div>
+    <script>
+        async function fetchRaceStatus() {
+            const response = await fetch('/race_status');
+            const data = await response.json();
+            const raceDiv = document.getElementById('race');
+            raceDiv.innerHTML = '';
+            
+            for (const [car, info] of Object.entries(data.cars)) {
+                let trackDiv = document.createElement('div');
+                trackDiv.classList.add('track');
+                
+                let nameDiv = document.createElement('div');
+                nameDiv.classList.add('car-name');
+                nameDiv.innerText = car;
+                
+                let carDiv = document.createElement('div');
+                carDiv.classList.add('car');
+                carDiv.style.left = `${(info.position / data.max_distance) * 100}%`;
+                carDiv.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/744/744465.png" alt="car">`;
+                
+                trackDiv.appendChild(nameDiv);
+                trackDiv.appendChild(carDiv);
+                raceDiv.appendChild(trackDiv);
+            }
+            
+            if (data.podium.length > 0) {
+                const podiumDiv = document.getElementById('podium');
+                podiumDiv.innerHTML = "<h2>Podio</h2>" + data.podium.map((car, index) => `<p>${index + 1}. ${car}</p>`).join('');
+            }
+        }
+        setInterval(fetchRaceStatus, 1000);
+        fetchRaceStatus();
+    </script>
+</body>
+</html>
